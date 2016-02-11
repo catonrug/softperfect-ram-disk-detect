@@ -223,10 +223,21 @@ fi
 #this link redirects to the latest version
 url=$(echo "https://www.softperfect.com/download/freeware/ramdisk_setup.exe")
 
-echo Test file size
-echo $url
-size=$(curl -o /dev/null -s -w %{size_download} $url)
-if [ $size -gt 9999 ]; then
+wget -S --spider -o output.log "$url"
+
+grep -A99 "^Resolving" $tmp/output.log | grep "HTTP.*200 OK"
+if [ $? -eq 0 ]; then
+#if file request retrieve http code 200 this means OK
+
+grep -A99 "^Resolving" $tmp/output.log | grep "Content-Length" 
+if [ $? -eq 0 ]; then
+#if there is such thing as Content-Length
+
+#calculate Content-Length
+contentlength=$(grep -A99 "^Resolving" $tmp/output.log | grep "Content-Length" | sed "s/^.*: //")
+
+#check if file zize is bigger than two megabites
+if [ $contentlength -gt 2048000 ]; then
 
 #calculate exact filename of link
 filename=$(echo $url | sed "s/^.*\///g")
@@ -283,18 +294,40 @@ echo
 fi
 
 else
-
-#if retrieved file is to small
-#lets send emails to all people in "maintenance" file
+#the file size is less than two megabytes
 emails=$(cat ../maintenance | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "To Do List" "retrieved file size is to small to do something: 
+python ../send-email.py "$onemail" "To Do List" "the following link size is less than two megabytes: 
 $url"
 } done
 echo 
 echo
-#end of file size check
+fi
+
+
+else
+#if link do not include Content-Length
+emails=$(cat ../maintenance | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "To Do List" "the following link do not include Content-Length: 
+$url"
+} done
+echo 
+echo
+fi
+
+else
+#if http statis code is not 200 ok
+emails=$(cat ../maintenance | sed '$aend of file')
+printf %s "$emails" | while IFS= read -r onemail
+do {
+python ../send-email.py "$onemail" "To Do List" "the following link do not retrieve good http status code: 
+$url"
+} done
+echo 
+echo
 fi
 
 #clean and remove whole temp direcotry
