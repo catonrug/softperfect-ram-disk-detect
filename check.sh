@@ -226,7 +226,7 @@ url=$(echo "https://www.softperfect.com/download/freeware/ramdisk_setup.exe")
 echo Test file size
 echo $url
 size=$(curl -o /dev/null -s -w %{size_download} $url)
-if [ $size -gt 99999 ]; then
+if [ $size -gt 9999 ]; then
 
 #calculate exact filename of link
 filename=$(echo $url | sed "s/^.*\///g")
