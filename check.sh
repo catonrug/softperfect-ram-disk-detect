@@ -223,6 +223,9 @@ fi
 #this link redirects to the latest version
 url=$(echo "https://www.softperfect.com/download/freeware/ramdisk_setup.exe")
 
+wget -S --spider -o $tmp/test.log "$url"
+sleep 1
+
 wget -S --spider -o $tmp/output.log "$url"
 
 grep -A99 "^Resolving" $tmp/output.log | grep "HTTP.*200 OK"
