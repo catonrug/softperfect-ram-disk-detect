@@ -54,6 +54,12 @@ if [ ! -d "../gd" ]; then
   mkdir -p "../gd"
 fi
 
+if [ -f ~/uploader_credentials.txt ]; then
+sed "s/folder = test/folder = `echo $appname`/" ../uploader.cfg > ../gd/$appname.cfg
+else
+echo google upload will not be used cause ~/uploader_credentials.txt do not exist
+fi
+
 #this link redirects to the latest version
 url=$(echo "https://www.softperfect.com/download/freeware/ramdisk_setup.exe")
 
