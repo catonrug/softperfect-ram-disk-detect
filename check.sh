@@ -64,13 +64,19 @@ fi
 url=$(echo "https://www.softperfect.com/download/freeware/ramdisk_setup.exe")
 
 wget -S --spider -o $tmp/test.log "$url"
-sleep 1
+sleep 3
+
+wget -S --spider -o $tmp/test.log "$url"
+sleep 3
 
 wget -S --spider -o $tmp/output.log "$url"
+sleep 1
 
 grep -A99 "^Resolving" $tmp/output.log | grep "HTTP.*200 OK"
 if [ $? -eq 0 ]; then
 #if file request retrieve http code 200 this means OK
+
+cat $tmp/output.log
 
 grep -A99 "^Resolving" $tmp/output.log | grep "Content-Length" 
 if [ $? -eq 0 ]; then
@@ -87,6 +93,7 @@ filename=$(echo $url | sed "s/^.*\///g")
 
 echo Downloading $filename
 wget $url -O $tmp/$filename -q
+sleep 1
 echo
 
 echo creating sha1 checksum of file..
@@ -141,7 +148,7 @@ else
 emails=$(cat ../maintenance | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "To Do List" "the following link size is less than two megabytes: 
+python ../send-email.py "$onemail" "SoftPerfect RAM Disk" "the following link size is less than two megabytes: 
 $url"
 } done
 echo 
@@ -154,8 +161,8 @@ else
 emails=$(cat ../maintenance | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "To Do List" "the following link do not include Content-Length: 
-$url"
+echo "the following link do not include Content-Length: $url"
+#python ../send-email.py "$onemail" "SoftPerfect RAM Disk" "the following link do not include Content-Length: $url"
 } done
 echo 
 echo
@@ -166,7 +173,7 @@ else
 emails=$(cat ../maintenance | sed '$aend of file')
 printf %s "$emails" | while IFS= read -r onemail
 do {
-python ../send-email.py "$onemail" "To Do List" "the following link do not retrieve good http status code: 
+python ../send-email.py "$onemail" "SoftPerfect RAM Disk" "the following link do not retrieve good http status code: 
 $url"
 } done
 echo 
